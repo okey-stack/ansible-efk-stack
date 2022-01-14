@@ -1,5 +1,5 @@
 ---
-- src: https://github.com/okey-stack/ansible-elasticsearch-role.git
+- src: git@github.com:okey-stack/ansible-elasticsearch-role.git
   scm: git
   version: "1.0.0"
   name: elastic-role
