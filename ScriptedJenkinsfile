@@ -1,0 +1,29 @@
+node("ansible"){
+    stage("Install roles"){
+        sh 'mkdir ansible-elasticsearch-role'
+        sh 'cd ansible-elasticsearch-role'
+        git credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', url: 'git@github.com:okey-stack/ansible-elasticsearch-role.git'
+        sh 'cd ..'
+        sh 'mkdir ansible-kibana-role'
+        sh 'cd ansible-kibana-role'
+        git credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', url: 'git@github.com:okey-stack/ansible-kibana-role.git'
+        sh 'cd ..'
+        sh 'mkdir ansible-filebeat-role'
+        sh 'cd ansible-filebeat-role'
+        git credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', url: 'git@github.com:okey-stack/ansible-filebeat-role.git'
+    }
+    stage("Install playbook"){
+        sh 'mkdir ansible-efk-stack'
+        sh 'cd ansible-efk-stack'
+        git credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', url: 'git@github.com:okey-stack/ansible-efk-stack.git'
+    }
+    stage("Run playbook"){
+        if (secret_check){
+            sh 'ansible-playbook site.yml -i inventory/prod.yml'
+        }
+        else{
+            echo 'need more action'
+        }
+        
+    }
+}
