@@ -1,21 +1,20 @@
 node("ansible"){
     stage("Install playbook"){
-        sh 'mkdir ansible-efk-stack'
-        sh 'cd ansible-efk-stack'
-        git credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', url: 'git@github.com:okey-stack/ansible-efk-stack.git'
-    }
+        git branch: 'main', credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', url: 'git@github.com:okey-stack/ansible-efk-stack.git'    }
     stage("Install roles"){
-        sh 'ansible-galaxy install -r requirements.yml -p roles'
-    }
-    stage("Sample define secret_check"){
-        secret_check=true
-    }
-    stage("Run playbook"){
-        if (secret_check){
-            sh 'ansible-playbook site.yml -i inventory/prod.yml'
+        sshagent(['23dc5dd6-568b-4238-a10d-3b6a780fda1d']) {
+            sh 'ansible-galaxy install -r requirements.yml -p roles'
         }
-        else{
-            echo 'need more action'
+    }
+
+    stage("Run playbook"){
+        withCredentials([sshUserPrivateKey(credentialsId: '23dc5dd6-568b-4238-a10d-3b6a780fda1d', keyFileVariable: 'PRIVATE')]) {
+            if (prod_env=="true"){
+                sh 'ansible-playbook site.yml -i inventory/prod --private-key $PRIVATE'
+            }
+            else{
+                sh 'ansible-playbook site.yml --check --diff -i inventory/prod --private-key $PRIVATE'
+            }
         }
         
     }
